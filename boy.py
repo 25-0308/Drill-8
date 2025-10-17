@@ -1,5 +1,5 @@
 from pico2d import load_image, get_time
-from sdl2 import SDL_KEYDOWN, SDLK_SPACE, SDLK_RIGHT, SDL_KEYUP, SDLK_LEFT
+from sdl2 import SDL_KEYDOWN, SDLK_SPACE, SDLK_RIGHT, SDL_KEYUP, SDLK_LEFT, SDLK_a
 
 from state_machine import StateMachine
 
@@ -27,6 +27,37 @@ def left_up(event):
     return (event[0]=='INPUT'
             and event[1].type == SDL_KEYUP
             and event[1].key == SDLK_LEFT)
+
+def a_keydown(event):
+    return (event[0]=='INPUT'
+            and event[1].type == SDL_KEYDOWN
+            and event[1].key == SDLK_a)
+
+class AutoRun:
+
+    def __init__(self, boy):
+        self.boy = boy
+
+    def enter(self, e):
+        if self.boy.face_dir > 0:
+            self.boy.face_dir = 1
+            self.boy.dir = 2
+        else:
+            self.boy.face_dir = -1
+            self.boy.dir = -2
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        self.boy.frame = (self.boy.frame + 1) % 8
+        self.boy.x += self.boy.dir * 5
+
+    def draw(self):
+        if self.boy.face_dir == 1: # right
+            self.boy.image.clip_draw(self.boy.frame * 100, 100, 100, 100, self.boy.x, self.boy.y)
+        else: # face_dir == -1: # left
+            self.boy.image.clip_draw(self.boy.frame * 100, 0, 100, 100, self.boy.x, self.boy.y)
 
 class Run:
 
@@ -91,7 +122,7 @@ class Idle:
 
     def do(self):
         self.boy.frame = (self.boy.frame + 1) % 8
-        if get_time() - self.boy.start_time > 10.0:
+        if get_time() - self.boy.start_time > 5.0:
             self.boy.state_machine.handle_state_event(('TIMEOUT', None))
 
     def draw(self):
@@ -112,12 +143,17 @@ class Boy:
         self.IDLE = Idle(self)
         self.SLEEP = Sleep(self)
         self.RUN = Run(self)
+        self.AUTO_RUN = AutoRun(self)
         self.state_machine = StateMachine(
             self.SLEEP,
             {
                 self.SLEEP: {space_down: self.IDLE},
-                self.IDLE: {right_down: self.RUN,left_down: self.RUN, right_up: self.RUN, left_up: self.RUN, time_out: self.SLEEP},
-                self.RUN: {right_up: self.IDLE, left_up: self.IDLE, left_down: self.IDLE, right_down: self.IDLE}
+                self.IDLE: {right_down: self.RUN,left_down: self.RUN,
+                            right_up: self.RUN, left_up: self.RUN,
+                            time_out: self.SLEEP, a_keydown: self.AUTO_RUN},
+                self.RUN: {right_up: self.IDLE, left_up: self.IDLE,
+                           left_down: self.IDLE, right_down: self.IDLE},
+                self.AUTO_RUN: {time_out: self.IDLE}
             }
         )
 
