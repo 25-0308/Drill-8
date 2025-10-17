@@ -79,6 +79,7 @@ class Run:
         self.boy = boy
 
     def enter(self, e):
+        self.boy.y = 90
         if right_down(e) or left_up(e):
             self.boy.dir = 1
             self.boy.face_dir = 1
@@ -169,7 +170,8 @@ class Boy:
                             time_out: self.SLEEP, a_keydown: self.AUTO_RUN},
                 self.RUN: {right_up: self.IDLE, left_up: self.IDLE,
                            left_down: self.IDLE, right_down: self.IDLE},
-                self.AUTO_RUN: {time_out: self.IDLE}
+                self.AUTO_RUN: {time_out: self.IDLE,
+                                right_down: self.RUN, left_down: self.RUN}
             }
         )
 
