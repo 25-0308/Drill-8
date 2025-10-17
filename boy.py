@@ -45,6 +45,7 @@ class AutoRun:
         else:
             self.boy.face_dir = -1
             self.boy.dir = -2
+        self.boy.y = 120
 
     def exit(self, e):
         pass
@@ -63,9 +64,11 @@ class AutoRun:
 
     def draw(self):
         if self.boy.face_dir == 1: # right
-            self.boy.image.clip_draw(self.boy.frame * 100, 100, 100, 100, self.boy.x, self.boy.y)
+            self.boy.image.clip_composite_draw(self.boy.frame * 100, 100, 100, 100,
+                                               0,'',self.boy.x, self.boy.y,200,200)
         else: # face_dir == -1: # left
-            self.boy.image.clip_draw(self.boy.frame * 100, 0, 100, 100, self.boy.x, self.boy.y)
+            self.boy.image.clip_composite_draw(self.boy.frame * 100, 0, 100, 100,
+                                               0,'', self.boy.x, self.boy.y,200,200)
 
 class Run:
 
@@ -101,6 +104,7 @@ class Sleep:
 
     def enter(self, e):
         self.boy.dir = 0
+        self.boy.y = 60
 
     def exit(self, e):
         pass
@@ -124,6 +128,7 @@ class Idle:
     def enter(self, e):
         self.boy.dir = 0
         self.boy.start_time = get_time()
+        self.boy.y = 90
 
     def exit(self, e):
         pass
